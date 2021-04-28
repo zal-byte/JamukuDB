@@ -384,7 +384,7 @@
             $sql = mysqli_query($this->connection,$query);
             while($row = mysqli_fetch_assoc($sql)){
                 $explode = explode("-", $row["BelDate"]);
-                if(($cron_day % $explode[2]) == 1){
+                if(($explode[2] % $cron_day ) == 1){
                     $this->deletePaymentRequest($row["BelDate"]);
                 }
             }
