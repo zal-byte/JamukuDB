@@ -384,7 +384,8 @@
             $sql = mysqli_query($this->connection,$query);
             while($row = mysqli_fetch_assoc($sql)){
                 $explode = explode("-", $row["BelDate"]);
-                if(($explode[2] % $cron_day ) == 1){
+                if(($explode[2] % $cron_day ) >= 1){
+                    //LEbih dari 1 hari
                     $this->deletePaymentRequest($row["BelDate"]);
                 }
             }

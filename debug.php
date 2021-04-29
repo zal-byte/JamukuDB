@@ -22,7 +22,7 @@
 	$product_day = "2020-02-30";
 	$ex = explode("-", $product_day);
 	// echo $ex[2]." / ".$cron_day;
-	if( ( $ex[2] % $cron_day ) == 1 ){
+	if( ( $ex[2] % $cron_day ) >= 1 ){
 		echo $ex[2] % $cron_day."\n";
 	}
 ?>

@@ -12,10 +12,8 @@
         }
         public function __construct(){
             $host = "localhost";
-            //$user = "zacybsec@localhost";
             $user = "database";
             $pass = "root";
-            //$pass = "ZaCybSec45";
             $db_name = "jamuku";
             $this->connection = mysqli_connect($host, $user, $pass, $db_name) or die("Koneksi database gagal");
         }
