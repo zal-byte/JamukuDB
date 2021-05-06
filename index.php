@@ -4,13 +4,19 @@
     include "lib/crud_barang.php";
     include "lib/crud_post.php";
     include "lib/crud_profile.php";
-    
+    include "lib/sql.php";
+    include "lib/crud_petugas.php";
+ 
+
     $connection = Connection::getInstance();
     $auth = new Auth($connection->connects());
     $crud_b = new CRUD_B($connection->connects());
     $crud_p = new CRUD_P($connection->connects());
     $crud_pf = new CRUD_PF($connection->connects());
 
+    $sql_con = A::getInstance();
+    $petugas = Petugas::getInstance($sql_con);
+    // $sql_con->con(A::CONNECT_PREPARE ,"localhost","database","root","jamuku");
     //POST method
         if($_SERVER["REQUEST_METHOD"] == "POST"){
             $request = isset($_POST["Request"]) ? $_POST["Request"] : die("[ Request ] : null");
@@ -47,18 +53,19 @@
             }
 
             //Produk
-            if( $request == "newProduct" ){
-                $param = array('ProdName'=>$_POST['ProdName'],
-                'ProdDesc'=>$_POST['ProdDesc'],
-                'ProdType'=>$_POST['ProdType'],
-                'ProdWeight'=>$_POST['ProdWeight'],
-                'ProdPrice'=>$_POST['ProdPrice'],
-                'ProdQuantity'=>$_POST['ProdQuantity'],
-                'ProdDate'=>$_POST['ProdDate'],
-                'ImageBase64'=>$_POST['ImageBase64']);
+            // if( $request == "newProduct" ){
+            //     $param = array('ProdName'=>$_POST['ProdName'],
+            //     'ProdDesc'=>$_POST['ProdDesc'],
+            //     'ProdType'=>$_POST['ProdType'],
+            //     'ProdWeight'=>$_POST['ProdWeight'],
+            //     'ProdPrice'=>$_POST['ProdPrice'],
+            //     'ProdQuantity'=>$_POST['ProdQuantity'],
+            //     'ProdDate'=>$_POST['ProdDate'],
+            //     'ImageBase64'=>$_POST['ImageBase64']);
 
-                $crud_b->newProduct($param);
-            }else if($request == "addToMyCart"){
+            //     $crud_b->newProduct($param);
+            // }else
+             if($request == "addToMyCart"){
                 $param = array('ProdID'=>$_POST['ProdID'],
                 'PUsername'=>$_POST['PUsername']);
                 $crud_b->addToMyCart($param);
@@ -76,6 +83,24 @@
                 "PUsername"=>$_POST['PUsername']);
                 
                 $crud_b->buyProduct($param);              
+            }else if($request == "addQuantity"){
+                $data = array("ProdID"=>$_POST["ProdID"],"NewQuantity"=>$_POST["NewQuantity"]);
+                $petugas->addQuantity($data);
+            }else if($request == "newPrice"){
+                $data = array("ProdID"=>$_POST["ProdID"],"NewPrice"=>$_POST["NewPrice"]);
+                $petugas->changeProdPrice($data);
+            }else if($request == "newDescription"){
+                $data = array("ProdID"=>$_POST["ProdID"], "NewDescription"=>$_POST["NewDescription"]);
+                $petugas->changeProdDescription($data);
+            }else if($request == "newName"){
+                $data = array("ProdID"=>$_POST["ProdID"],"NewName"=>$_POST["NewName"]);
+                $petugas->changeProductName($data);
+            }else if($request == "newProduct"){
+                $file = @file_get_contents($_FILES["file"]["tmp_name"]);
+                $filename = $_FILES["file"]["name"];
+
+                $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"], "imageData"=>base64_encode($file), "ProdPict"=>$filename);
+                $petugas->AA($data);
             }
 
             //Post
@@ -139,6 +164,8 @@
                 $crud_b->checkingMyCart($ProdID, $PUsername);
             }else if($req == "deletePaymentRequest"){
                 $crud_b->deletePayment();
+            }else if($req == "fetchMyPayment"){
+                $crud_b->fetchMyPayment($_GET["PUsername"]);
             }
             //Post Stuff
             if($req == "getComment"){
@@ -153,6 +180,11 @@
             if($req == "fetchProfileData"){
                 $PUsername = $_GET["PUsername"];
                 $crud_pf->fetchProfileData($PUsername);
+            }
+
+            //another stuff
+            if($req == "fetchAllPayment"){
+                $petugas->fetchAllPayment();
             }
         }
         //

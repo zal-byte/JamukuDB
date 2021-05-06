@@ -2,15 +2,48 @@
 
     class CRUD_B{
         public $connection;
+        private static $instance = null;
+        public static function getInstance($connection){
+            if(self::$instance == null ){
+                self::$instance = new CRUD_B($connection);
+            }
+            return self::$instance;
+        }
         public function __construct($connection){
             $this->connection = $connection;
             date_default_timezone_set("Asia/Jakarta");
-
+            
+        }
+        function fetchMyPayment($PUsername){
+            $re["fetchMyPayment"]  = array();
+            $sql = mysqli_query($this->connection, "select * from beli left join produk on produk.ProdID = beli.ProdID left join pengguna on pengguna.PUsername = beli.PUsername where beli.PUsername='".$PUsername."' order by beli.BelID desc");
+               if($sql){
+                    while($row = mysqli_fetch_assoc($sql)){
+                        $n["ProdID"] = $row["ProdID"];
+                        $n["BelID"] = $row["BelID"];
+                        $n["Quantity"] = $row["Quantity"];
+                        $n["TotalPrice"] = $row["TotalPrice"];
+                        $n["PUsername"] = $PUsername;
+                        $n["BelDate"] = $row["BelDate"];
+                        $n["Status"] = $row["Status"];
+                        $n["ProdName"] = $row["ProdName"];
+                        $n["ProdPrice"] = $row["ProdPrice"];
+                        $n["ProdQuantity"] = $row["ProdQuantity"];
+                        $n["ProdDate"] = $row["ProdDate"];
+                        $n["ProdLove"] = $row["ProdLove"];
+                        $n["ProdComm"] = $row["ProdComm"];
+                        $n["ProdPict"] = $row["ProdPict"];
+                        array_push($re["fetchMyPayment"], $n);
+                }
+            }else{
+                $this->print(array("fetchMyPayment"=>array(array("status"=>false,"message"=>"Gagal mengambil data"))));
+            }
+            $this->print($re);
         }
         //Read
         function fetchProduct($page, $limit){ 
             $result["product"] = array();
-            $query = "select * from produk  left join tipe on tipe.ProdType = produk.ProdType order by produk.ProdID desc limit ".$page.",".$limit;
+            $query = "select * from produk order by produk.ProdID desc limit ".$page.",".$limit;
             $sql = mysqli_query($this->connection, $query);
             if( $sql ){
                 $re["status"] = true;
@@ -19,7 +52,7 @@
                     $re["ProdID"] = $row["ProdID"];
                     $re["ProdName"] = $row["ProdName"];
                     $re["ProdDesc"] = $row["ProdDesc"];
-                    $re["ProdType"] = $row["ProdType"];
+                    // $re["ProdType"] = $row["ProdType"];
                     $re["ProdWeight"] = $row["ProdWeight"];
                     $re["ProdPrice"] = $row["ProdPrice"];
                     $re["ProdQuantity"] = $row["ProdQuantity"];
@@ -28,26 +61,26 @@
                     $re["ProdComm"] = $row["ProdComm"];
                     $re["ProdPict"] = $row["ProdPict"];
 
-                    //Tipe
-                    $re["TID"] = $row["TID"];
-                    $re["ProdType"] = $row["ProdType"];
-                    $re["ProdValue"] = $row["ProdValue"];
+                    // //Tipe
+                    // $re["TID"] = $row["TID"];
+                    // $re["ProdType"] = $row["ProdType"];
+                    // $re["ProdValue"] = $row["ProdValue"];
                     
                     array_push($result["product"], $re);
                 }
-                $this->print(json_encode($result));
+                $this->print($result);
             }else{
                 //Database error
                 $re["status"] = false;
                 $re["message"] = "Database error.";
                 array_push($result["product"], $re);
-                $this->print(json_encode($result));
+                $this->print($result);
             }
         }
 
         function fetchProductDataView($ProdID){
             $result['productView'] = array();
-            $query = "select * from produk left join tipe on tipe.ProdType = produk.ProdType where produk.ProdID = '".$ProdID."'";
+            $query = "select * from produk where produk.ProdID = '".$ProdID."'";
             $sql = mysqli_query($this->connection, $query);
             if($sql){
                 $re["status"] = true;
@@ -56,7 +89,7 @@
                     $re["ProdID"]= $row["ProdID"];
                     $re["ProdName"] = $row["ProdName"];
                     $re["ProdDesc"]= $row["ProdDesc"];
-                    $re["ProdType"] = $row["ProdType"];
+                    // $re["ProdType"] = $row["ProdType"];
                     $re["ProdPrice"] = $row["ProdPrice"];
                     $re["ProdDate"] = $row["ProdDate"];
                     $re["ProdImage"] = $row["ProdPict"];
@@ -66,7 +99,7 @@
                     $re["ProdWeight"] = $row["ProdWeight"];
                     $re["ProdDate"] = $row["ProdDate"];
                     //table tipe
-                    $re["ProdValue"] = $row["ProdValue"];
+                    // $re["ProdValue"] = $row["ProdValue"];
                     array_push($result["productView"], $re);
                 }
             }else{
@@ -74,7 +107,7 @@
                 $re["message"] = "Barang tidak tersedia.";
                 array_push($result['productView'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
         function fetchPopularProduct($page, $limit){
@@ -89,7 +122,7 @@
                         $re['ProdID'] = $row['ProdID'];
                         $re["ProdName"] = $row["ProdName"];
                         $re["ProdDesc"] = $row["ProdDesc"];
-                        $re["ProdType"] = $row["ProdType"];
+                        // $re["ProdType"] = $row["ProdType"];
                         $re["ProdWeight"] = $row["ProdWeight"];
                         $re["ProdPrice"] = $row["ProdPrice"];
                         $re["ProdQuantity"] = $row["ProdQuantity"];
@@ -105,7 +138,7 @@
                 $re['message']= 'Kendala dalam database.';
                 array_push($result['popular'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
         function fetchMyCart($PUsername, $page, $limit){
@@ -122,6 +155,9 @@
                     $re["ProdName"] = $row["ProdName"];
                     $re["ProdImage"] = $row["ProdPict"];
                     $re["ProdPrice"] = $row["ProdPrice"];
+                    $re["ProdLove"] = $row["ProdLove"];
+                    $re["ProdComm"] = $row["ProdComm"];
+                    $re["ProdQuantity"] = $row["ProdQuantity"];
                     array_push($result["cart"], $re);
                 }
             }else{
@@ -130,7 +166,7 @@
                 $re["message"] = "Kendala dalam database.";
                 array_push($result["cart"], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         function buyProductHistory($PUsername, $page, $limit){
             $result['buyProductHistory'] = array();
@@ -155,38 +191,38 @@
                 $re["message"] = "Tidak dapat mengambil data.";
                 array_push($result['buyProductHistory'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
 
         //Create
-        function newProduct($param){
-            $result["newProduct"] = array();
+        // function newProduct($param){
+        //     $result["newProduct"] = array();
             
-            $ProdPict_path = __DIR__."/img/produk/".$param['ProdType']."_".$param['ProdName'].".jpg";
-            $ProdPict = $param['ProdType']."_".$param['ProdName'].".jpg";
-            if( file_put_contents($ProdPict_path, base64_decode($param['ImageBase64']))){
-                $query = "insert into produk (`ProdName`,`ProdDesc`,`ProdType`,`ProdWeight`,`ProdPrice`,`ProdQuantity`,`ProdDate`,`ProdLove`,`ProdPict`) values ";
-                $query .= "('".$param['ProdName']."','".$param['ProdDesc']."','".$param['ProdType']."','".$param['ProdWeight']."','".$param['ProdPrice']."','".$param['ProdQuantity']."','".$param['ProdDate']."','0','0','".$ProdPict."')";
-                $sql = mysqli_query($this->connection, $query);
-                if($sql){
-                    //Berhasil mengirim data
-                    $re["status"] = true;
-                    $re["message"] = "Data berhasil diunggah.";
-                    array_push($result["newProduct"], $re);
-                }else{
-                    //Gagal mengirim data
-                    $re["status"] = false;
-                    $re["message"] = "Data gagal diunggah.";
-                    array_push($result["newProduct"], $re);
-                }
-            }else{
-                $re["status"] = false;
-                $re["message"] = "Gambar tidak terunggah.";
-                array_push($result["newProduct"], $re);
-            }
-            $this->print(json_encode($result));
-        }
+        //     $ProdPict_path = __DIR__."/img/produk/".$param['ProdType']."_".$param['ProdName'].".jpg";
+        //     $ProdPict = $param['ProdType']."_".$param['ProdName'].".jpg";
+        //     if( file_put_contents($ProdPict_path, base64_decode($param['ImageBase64']))){
+        //         $query = "insert into produk (`ProdName`,`ProdDesc`,`ProdType`,`ProdWeight`,`ProdPrice`,`ProdQuantity`,`ProdDate`,`ProdLove`,`ProdPict`) values ";
+        //         $query .= "('".$param['ProdName']."','".$param['ProdDesc']."','".$param['ProdType']."','".$param['ProdWeight']."','".$param['ProdPrice']."','".$param['ProdQuantity']."','".$param['ProdDate']."','0','0','".$ProdPict."')";
+        //         $sql = mysqli_query($this->connection, $query);
+        //         if($sql){
+        //             //Berhasil mengirim data
+        //             $re["status"] = true;
+        //             $re["message"] = "Data berhasil diunggah.";
+        //             array_push($result["newProduct"], $re);
+        //         }else{
+        //             //Gagal mengirim data
+        //             $re["status"] = false;
+        //             $re["message"] = "Data gagal diunggah.";
+        //             array_push($result["newProduct"], $re);
+        //         }
+        //     }else{
+        //         $re["status"] = false;
+        //         $re["message"] = "Gambar tidak terunggah.";
+        //         array_push($result["newProduct"], $re);
+        //     }
+        //     $this->print($result);
+        // }
         function addToMyCart($param){
             $result['addToMyCart'] = array();
             $query = "insert into keranjang (`ProdID`,`PUsername`) values ('".$param['ProdID']."','".$param['PUsername']."')";
@@ -205,7 +241,7 @@
             }else{
                 array_push($result['addToMyCart'], $this->delMyCart($param['ProdID'], $param['PUsername']));
             }   
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         function delMyCart($ProdID, $PUsername){
             $query = "delete from keranjang where ProdID='".$ProdID."' and PUsername='".$PUsername."'";
@@ -253,7 +289,7 @@
                     array_push($result['checkingMyCart'], $re);
                 }
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         function buyProduct($param){
             $result['buyProduct'] = array();
@@ -263,14 +299,14 @@
                 $re["status"] = false;
                 $re["message"] = "Produk sudah habis, tidak dapat dipesan lagi..";
                 array_push($result['buyProduct'], $re);
-                $this->print(json_encode($result));
+                $this->print($result);
                 //Produk sudah habis, tidak bisa dibeli.
             }else{
                if( ($ProdQuantity - $param['Quantity']) < 0){
                 $re["status"] = false;
                 $re["message"] = "Produk sudah habis, tidak dapat dipesan lagi.";
                 array_push($result['buyProduct'], $re);
-                $this->print(json_encode($result));
+                $this->print($result);
                }else{
                 $finalQuantity = ($ProdQuantity - $param['Quantity']);
                 //Disini kita akan mencek dulu apakah ada pembayaran yang sama
@@ -284,7 +320,7 @@
                         $re["status"] = false;
                         $re["message"] = "Tabel produk gagal diperbarui.";
                         array_push($result['buyProduct'], $re);
-                        $this->print(json_encode($result));
+                        $this->print($result);
                     }
                 }else{
                     //SamePayment
@@ -292,7 +328,7 @@
                     $re["message"]= "SamePayment";
                     $re["ProdID"] = $param['ProdID'];
                     array_push($result['buyProduct'], $re);
-                    $this->print(json_encode($result));
+                    $this->print($result);
                 }
                }
             }
@@ -336,7 +372,7 @@
                 $re["message"] = "Gagal menambahkan kedalam tabel pembelian.";
                 array_push($result['buyProduct'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         function updateProdQuantity($finalQuantity, $ProdID){
             $status = false;
@@ -370,7 +406,7 @@
                 $re["message"] = "Tidak dapat dihapus.";
                 array_push($result['deleteProduct'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
         //CRON JOB METHOD
@@ -391,6 +427,7 @@
             }
         }
         function deletePaymentRequest($date){
+
             $result['deletePaymentRequest'] = array();
             $query = "delete from beli where BelDate='".$date."'";
             $sql = mysqli_query($this->connection, $query);
@@ -403,7 +440,7 @@
                 $re["message"] = "Payment Request Can't to delete.";
                 array_push($result['deletePaymentRequest'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
 
@@ -422,12 +459,12 @@
                 $re["message"] = "Gagal menambahkan stok barang.";
                 array_push($result['addQuantity'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
 
         //Hello there !
         function print($string){
-            echo $string;
+            echo json_encode($string);
         }
     }
 

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style/bootstrap4.3.1.css">
+	<link rel="stylesheet" type="text/css" href="style/jquery-ui.css">
+	<title>Produk Baru</title>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<style type="text/css">
+		body
+		{
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+</head>
+<body>
+	<div class="container mt-2">
+		<div class="card shadow border-0">
+			<div class="card-body">
+				<div class="form-group" role="form">
+					<label for="ProdName">Nama Produk</label>
+					<input type="text" id="ProdName" class="form-control" required="true">
+					<label for="ProdDesc">Deskripsi Produk</label>
+					<textarea class="form-control" rows="5" id="ProdDesc" required="true"></textarea>
+					<label for="ProdWeight">Berat Barang</label>
+					<input type="text" class="form-control" id="ProdWeight" required="true">
+					<label for="ProdPrice">Harga Barang</label>
+					<input type="number" class="form-control" id="ProdPrice" required="true">
+					<label for="ProdQuantity">Jumlah Barang</label>
+					<input type="number" class="form-control" id="ProdQuantity" required="true">
+					<div class="custom-file mt-3">
+						<input type="file" name="files" class="custom-file-input" onchange="preview()" id="files">
+						<label for="files" class="custom-file-label">Pilih gambar barang</label>
+					</div>
+					<div id="preview">
+
+					</div>
+					<button role="button" type="button" class="btn mt-2 shadow" style="background-color: lightblue;" onclick="send()">Unggah</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function preview(){
+			$("#preview").html("<center><img src='"+URL.createObjectURL(event.target.files[0])+"' class='m-5 img-responsive img-thumbnail' style='width:25em; height:25em;'> </center>");
+		}
+		function send(){
+			var file_data = $("#files").prop("files")[0];
+			var formdata = new FormData();
+			formdata.append("file",file_data);
+			formdata.append("Request","newProduct");
+			formdata.append("ProdName", $("#ProdName").val());
+			formdata.append("ProdDesc",$("#ProdDesc").val());
+			formdata.append("ProdWeight",$("#ProdWeight").val());
+			formdata.append("ProdPrice",$("#ProdPrice").val());
+			formdata.append("ProdQuantity",$("#ProdQuantity").val());
+			formdata.append("PUsername","nullxzappan");
+			$.ajax({
+				type:'POST',
+				url:'../index.php',
+				data:formdata,
+				contentType:false,
+				processData:false,
+				dataType:'script',
+				cache:false,
+				success:function(res){
+					console.log(res);
+				}
+			});
+		}
+	</script>
+</body>
+</html>

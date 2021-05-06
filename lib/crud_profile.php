@@ -2,6 +2,13 @@
 
     class CRUD_PF{
         public $connection;
+        private static $instance = null;
+        public static function getInstance($connection){
+          if(self::$instance == null){
+            self::$instance = new CRUD_PF($connection);
+          }
+          return self::$instance;
+        }
         public function __construct($connection){
             $this->connection = $connection;
         }
@@ -35,30 +42,41 @@
                 $re["message"] = "Database Error.";
                 array_push($result['fetchProfileData'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         //Update
         function updateProfileData($param){
-        	$result['updateProfileData'] = array();
-        	if($param["Name"] == "ImageBase64"){
-        		$path_for_image = __DIR__."/img/profilepengguna/".$param['PUsername'].".jpg";
-                $path_for_database = $param['PUsername'].".jpg";
-                $query = "update pengguna set `PProfilePicture`='".$path_for_database."' where PUsername='".$param['PUsername']."'";
-                if($this->uploadImage($path_for_image, $param['Value']) == true){
-                    $re["status"] = true;
-                    $re["message"] = "Gambar berhasil diunggah.";
-                    array_push($result['updateProfileData'], $re);
-                    $this->executeSql($query);
-                }else{
-                    $re["status"] = false;
-                    $re["message"] = "Gagal mengunggah gambar.";
-                    array_push($result['updateProfileData'], $re);
+            // print_r($param);
+            $uid = base64_encode(uniqid());
+            
+            if($param["Name"] == "ImageBase64"){
+                $path = "lib/img/profilepengguna/";
+                $filename = $param["PUsername"]."_".$uid.".jpg";
+              
+              
+                $sql = mysqli_query($this->connection, "select * from pengguna where PUsername='".$param["PUsername"]."'");
+                $row = mysqli_fetch_assoc($sql);
+                
+                    if($param["Name"] == "ImageBase64"){
+                        if(file_exists($path.$row["PProfilePicture"])){
+                          unlink($path.$row["PProfilePicture"]);
+                        }
+                    
+                    $sqls = mysqli_query($this->connection, "update pengguna set PProfilePicture='".$filename."' where PUsername='".$param["PUsername"]."'");
+                    if($sqls){
+                        if(@file_put_contents($path.$filename, base64_decode($param["Value"]))){
+                            $this->print(array("updateProfileData"=>array(array("status"=>true,"message"=>"Gambar berhasil di unggah"))));
+                        }else{
+                            $this->print(array("updateProfileData"=>array(array("status"=>false, "message"=>"Gambar gagal di unggah"))));
+                        }
+                    }else{
+                        $this->print(array(array("updateProfileData"=>array("status"=>false,"message"=>"Gagal memperbarui data"))));
+                    }
                 }
-                $this->print(json_encode($result));
-        	}else{
-       		 	$query = "update pengguna set `".$param["Name"]."`='".$param["Value"]."' where PUsername='".$param["PUsername"]."'";
-        	}
-        	$this->executeSql($query);
+
+            }else{
+                $this->executeSql("update pengguna set ".$param["Name"]." = '".$param["Value"]."' where PUsername='".$param["PUsername"]."'");
+            }
         }
         function executeSql($query){
         	$result['updateProfileData'] = array();
@@ -72,7 +90,7 @@
         		$re["message"] = "Gagal diperbarui.";
         		array_push($result['updateProfileData'], $re);
         	}
-        	$this->print(json_encode($result));
+          $this->print($result);
         }
       //   function updateProfileData($param){
       //       $result['updateProfileData'] = array();
@@ -149,10 +167,10 @@
                 $re["message"] = "Kata sandi yang dimasukan tidak sama.";
                 array_push($result['changePassword'], $re);
             }
-            $this->print(json_encode($result));
+            $this->print($result);
         }
         function print($string){
-        	echo $string;
+        	echo json_encode($string);
         }
     }
 

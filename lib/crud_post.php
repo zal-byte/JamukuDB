@@ -9,8 +9,8 @@
         function sendComment($param){
             $result['sendComment'] = array();
 
-            $query = "insert into komentar (`ProdID`,`PUsername`,`PName`,`PProfilePicture`,`KMessage`,`KDate`) values ";
-            $query .= "('".$param['ProdID']."','".$param['PUsername']."','".$param['PName']."','".$param['PProfilePicture']."','".$param['KMessage']."','".$param['KDate']."')";
+            $query = "insert into komentar (`ProdID`,`PUsername`,`KMessage`,`KDate`) values ";
+            $query .= "('".$param['ProdID']."','".$param['PUsername']."','".$param['KMessage']."','".$param['KDate']."')";
             $sql = mysqli_query($this->connection, $query);
             if($sql){
                 //upquery
@@ -150,7 +150,7 @@
         function getComment($ProdID, $page, $limit){
             $result['getComment'] = array();
 
-            $query = "select * from komentar where ProdID='".$ProdID."' order by KID desc limit ".$page.",".$limit;
+            $query = "select * from komentar left join pengguna on komentar.PUsername = pengguna.PUsername where komentar.ProdID='".$ProdID."' order by komentar.KID desc limit ".$page.",".$limit;
             $sql = mysqli_query($this->connection, $query);
             if($sql){
                 $re["status"] = true;
@@ -158,9 +158,9 @@
                 while( $row = mysqli_fetch_assoc($sql) ){
                     $re['ProdID'] = $row['ProdID'];
                     $re['PUsername']= $row['PUsername'];
-                    $re['PName'] = $row['PName'];
-                    $re['PProfilePicture']= $row['PProfilePicture'];
                     $re['KMessage'] = $row['KMessage'];
+                    $re["PProfilePicture"] = $row["PProfilePicture"];
+                    $re["PName"] = $row["PName"];
                     $re["KDate"] = $row["KDate"];
                     $re["KID"] = $row["KID"];
                     array_push($result['getComment'], $re);
