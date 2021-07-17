@@ -1,17 +1,17 @@
 
 <?php
 
-	$img=Image::getInstance();
+	// $img=Image::getInstance();
 
-	if($_SERVER['REQUEST_METHOD']=='POST'){
-		if(isset($_FILES['file'])){
-			if($_FILES['file']['type'] == 'image/jpeg'){
-				$img->ImageQuality($_FILES['file'], Image::JPG_DEF);
-			}else if($_FILES['file']['type'] == 'image/png'){
-				$img->ImageQuality($_FILES['file'], Image::PNG_DEF);
-			}
-		}
-	}
+	// if($_SERVER['REQUEST_METHOD']=='POST'){
+	// 	if(isset($_FILES['file'])){
+	// 		if($_FILES['file']['type'] == 'image/jpeg'){
+	// 			$img->ImageQuality($_FILES['file'], Image::JPG_DEF);
+	// 		}else if($_FILES['file']['type'] == 'image/png'){
+	// 			$img->ImageQuality($_FILES['file'], Image::PNG_DEF);
+	// 		}
+	// 	}
+	// }
 	class Image{
 		private static $instance = null;
 		public static function getInstance(){
@@ -30,11 +30,15 @@
 		public const PNG_DEF = 6;
 		public const PNG_HIGH = 9;
 
-		public function ImageQuality($tmp, $where){
+		public function ImageQuality($tmp = null, $where, $additional = null){
 			if($tmp['type'] == 'image/jpeg'){
 				$this->jpg(['1'=>$where,'file'=>$tmp]);
 			}else if($tmp['type'] == 'image/png'){
 				$this->png(['1'=>$where,'file'=>$tmp]);
+			}
+
+			if($additional != null){
+				$this->byte($additional);
 			}
 		}
 		public function dir($path = null){
@@ -63,19 +67,27 @@
 				unlink($path);
 			}
 		}
+		public function byte($param){
+			$filename = time() . "_" .uniqid() . "_" . $param['filename'];
+			if(imagejpeg(imagecreatefromstring($param['imageData']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
+				$this->print(array('byte'=>['status'=>true,'filename'=>$filename]));
+			}
+		}
 		public function jpg($param){
 			$filename = time() . "_" . uniqid() . "_" . $param['file']['name'];
 			if(imagejpeg(imagecreatefromjpeg($param['file']['tmp_name']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
-				echo "uploaded";
+				$this->print(array('jpg'=>['status'=>true,'filename'=>$filename]));
 			}
 		}
 		public function png($param){
 			$filename = time() . "_". uniqid() . "_" . $param['file']['name'];
 			if(imagepng( imagecreatefrompng($param['file']['tmp_name']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'] )){
-				echo "uploaded";
+				$this->print(array('png'=>['status'=>true,'filename'=>$filename]));
 			}
 		}
-
+		private function print($string){
+			echo json_encode($string);
+		}
 	}
 
 ?>

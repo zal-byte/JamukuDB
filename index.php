@@ -100,7 +100,9 @@
                 $filename = $_FILES["file"]["name"];
 
                 $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"], "imageData"=>base64_encode($file), "ProdPict"=>$filename);
-                $petugas->AA($data);
+                if($petugas->AA($data)['status'] == true){
+                    $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData']));
+                }
             }
 
             //Post
