@@ -26,6 +26,7 @@
                     $re["PUsername"] = $row["PUsername"];
                     $re["PName"] = $row["PName"];
                     $re["PEmail"] = $row["PEmail"];
+                    $re["PID"] = $row["PID"];
                     $re["PPhone"] = $row["PPhone"];
                     $re["PAddress"] = $row["PAddress"];
                     $re["PProfilePicture"] = $row["PProfilePicture"];

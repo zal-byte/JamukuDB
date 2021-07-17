@@ -14,10 +14,18 @@
             date_default_timezone_set("Asia/Jakarta");
             
         }
-        function fetchMyPayment($PUsername){
+        function fetchMyPayment($PUsername, $by = null){
             $re["fetchMyPayment"]  = array();
-            $sql = mysqli_query($this->connection, "select * from beli left join produk on produk.ProdID = beli.ProdID left join pengguna on pengguna.PUsername = beli.PUsername where beli.PUsername='".$PUsername."' order by beli.BelID desc");
+                $query = "select * from beli left join produk on produk.ProdID = beli.ProdID left join pengguna on pengguna.PUsername = beli.PUsername  where  beli.PUsername='".$PUsername."' {me} order by beli.BelID desc";
+
+            if($by == null || $by == ""){
+                $query = str_replace("{me}","", $query);
+            }else{
+                $query = str_replace("{me}","and beli.Status='".$by."'", $query);
+            }
+            $sql = mysqli_query($this->connection, $query);
                if($sql){
+                $n["status"] = true;
                     while($row = mysqli_fetch_assoc($sql)){
                         $n["ProdID"] = $row["ProdID"];
                         $n["BelID"] = $row["BelID"];
@@ -25,6 +33,7 @@
                         $n["TotalPrice"] = $row["TotalPrice"];
                         $n["PUsername"] = $PUsername;
                         $n["BelDate"] = $row["BelDate"];
+                        $n["ProdDesc"] = $row["ProdDesc"];
                         $n["Status"] = $row["Status"];
                         $n["ProdName"] = $row["ProdName"];
                         $n["ProdPrice"] = $row["ProdPrice"];
@@ -33,10 +42,13 @@
                         $n["ProdLove"] = $row["ProdLove"];
                         $n["ProdComm"] = $row["ProdComm"];
                         $n["ProdPict"] = $row["ProdPict"];
+                        $n["PAddress"] = $row["PAddress"];
                         array_push($re["fetchMyPayment"], $n);
                 }
             }else{
-                $this->print(array("fetchMyPayment"=>array(array("status"=>false,"message"=>"Gagal mengambil data"))));
+               $re["status"] = false;
+               $re["message"] = "Gagal mengambil data.";
+               array_push($re["fetchMyPayment"], $re);
             }
             $this->print($re);
         }
@@ -60,7 +72,7 @@
                     $re["ProdLove"] = $row["ProdLove"];
                     $re["ProdComm"] = $row["ProdComm"];
                     $re["ProdPict"] = $row["ProdPict"];
-
+                    $re["PUsername"] = $row["PUsername"];
                     // //Tipe
                     // $re["TID"] = $row["TID"];
                     // $re["ProdType"] = $row["ProdType"];
@@ -333,6 +345,38 @@
                }
             }
         }
+        function SamePayment($ProdID, $PUsername){
+            $result["SamePayment"] = array();
+            $query = "SELECT * FROM beli LEFT JOIN produk ON produk.ProdID = beli.ProdID LEFT JOIN pengguna ON pengguna.PUsername = beli.PUsername WHERE beli.PUsername='".$PUsername."' AND beli.ProdID='".$ProdID."'";
+            $sql = mysqli_query($this->connection, $query);
+            if($sql){
+                $n["status"] = true;
+                while($row = mysqli_fetch_assoc($sql)){
+                        $n["ProdID"] = $row["ProdID"];
+                        $n["BelID"] = $row["BelID"];
+                        $n["Quantity"] = $row["Quantity"];
+                        $n["TotalPrice"] = $row["TotalPrice"];
+                        $n["PUsername"] = $PUsername;
+                        $n["BelDate"] = $row["BelDate"];
+                        $n["ProdDesc"] = $row["ProdDesc"];
+                        $n["Status"] = $row["Status"];
+                        $n["ProdName"] = $row["ProdName"];
+                        $n["ProdPrice"] = $row["ProdPrice"];
+                        $n["ProdQuantity"] = $row["ProdQuantity"];
+                        $n["ProdDate"] = $row["ProdDate"];
+                        $n["ProdLove"] = $row["ProdLove"];
+                        $n["ProdComm"] = $row["ProdComm"];
+                        $n["ProdPict"] = $row["ProdPict"];
+                        $n["PAddress"] = $row["PAddress"];
+                        array_push($result["SamePayment"], $n);
+                    }
+            }else{
+                $re["status"] = false;
+                $re["message"] = "Gagal mengambil data.";
+                array_push($result["SamePayment"], $re);
+            }
+            $this->print($result);
+        }
         function checkIsAvailable($ProdID, $PUsername){
             $status = false;
             $query = "select * from beli where ProdID='".$ProdID."' and PUsername='".$PUsername."'";
@@ -361,7 +405,9 @@
         }
         function addToBuyTables($param){
             $result['buyProduct'] = array();
-            $query = "insert into beli (`ProdID`,`ProdImage`,`Quantity`,`TotalPrice`,`Address`,`PUsername`,`BelDate`,`Status`) values ('".$param['ProdID']."','".$param['ProdImage']."','".$param['Quantity']."','".$this->getTotalPrice($param['ProdID'], $param['Quantity'])."','".$param['Address']."','".$param['PUsername']."','".date("Y-m-d")."','proses')";
+            $query = "insert into beli (`ProdID`,`Quantity`,`TotalPrice`,`PUsername`,`BelDate`,`Status`) values ";
+            $query .= "('".$param["ProdID"]."','".$param["Quantity"]."','".$this->getTotalPrice($param["ProdID"], $param["Quantity"])."','".$param["PUsername"]."','".date("Y-m-d")."','proses')";
+            // $query = "insert into beli (`ProdID`,`Quantity`,`TotalPrice`,`PUsername`,`BelDate`,`Status`) values ('".$param['ProdID']."','".$param['Quantity']."','".$this->getTotalPrice($param['ProdID'], $param['Quantity'])."','".$param['PUsername']."','".date("Y-m-d")."','proses')";
             $sql = mysqli_query($this->connection, $query);
             if($sql){
                 $re["status"] = true;

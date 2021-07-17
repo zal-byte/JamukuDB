@@ -6,14 +6,14 @@
     include "lib/crud_profile.php";
     include "lib/sql.php";
     include "lib/crud_petugas.php";
- 
+    include 'lib/image.php';
 
     $connection = Connection::getInstance();
     $auth = new Auth($connection->connects());
     $crud_b = new CRUD_B($connection->connects());
     $crud_p = new CRUD_P($connection->connects());
     $crud_pf = new CRUD_PF($connection->connects());
-
+    $image = Image::getInstance();
     $sql_con = A::getInstance();
     $petugas = Petugas::getInstance($sql_con);
     // $sql_con->con(A::CONNECT_PREPARE ,"localhost","database","root","jamuku");
@@ -165,7 +165,16 @@
             }else if($req == "deletePaymentRequest"){
                 $crud_b->deletePayment();
             }else if($req == "fetchMyPayment"){
-                $crud_b->fetchMyPayment($_GET["PUsername"]);
+                if(isset($_GET["by"])){
+                    $by = $_GET["by"];
+                    $crud_b->fetchMyPayment($_GET["PUsername"], $by);
+                }else{
+                    $crud_b->fetchMyPayment($_GET["PUsername"]);
+                }
+            }else if($req == "SamePayment"){
+                $ProdID = $_GET["ProdID"];
+                $PUsername = $_GET["PUsername"];
+                $crud_b->SamePayment($ProdID, $PUsername);
             }
             //Post Stuff
             if($req == "getComment"){

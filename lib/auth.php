@@ -24,7 +24,7 @@
                         //Login Berhasil
                         $re["status"] = true;
                         $re["message"] = "Login berhasil.";
-
+                        $re["PID"] = $row["PID"];
                         $re["PUsername"] = $row["PUsername"];
                         $re["PName"] = $row["PName"];
                         $re["PEmail"] = $row["PEmail"];
