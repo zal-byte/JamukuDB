@@ -96,12 +96,15 @@
                 $data = array("ProdID"=>$_POST["ProdID"],"NewName"=>$_POST["NewName"]);
                 $petugas->changeProductName($data);
             }else if($request == "newProduct"){
-                $file = @file_get_contents($_FILES["file"]["tmp_name"]);
-                $filename = $_FILES["file"]["name"];
+                $file = @file_get_contents($_FILES['ProdPict']['tmp_name']);
+                $filename = $_FILES["ProdPict"]['name'];
 
                 $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"], "imageData"=>base64_encode($file), "ProdPict"=>$filename);
                 if($petugas->AA($data)['status'] == true){
-                    $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData']));
+                    // $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData']));
+
+
+                    $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData'])]);
                 }
             }
 

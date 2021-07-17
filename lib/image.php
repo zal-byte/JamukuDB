@@ -38,7 +38,7 @@
 			}
 
 			if($additional != null){
-				$this->byte($additional);
+				$this->byte(['1'=>$where, 'file'=>$additional]);
 			}
 		}
 		public function dir($path = null){
@@ -59,8 +59,9 @@
 				die("path : null");
 			}
 		}
+
 		public function funcDir(){
-			return $this->dir('upload.path');
+			return $this->dir(__DIR__.'/'.'upload.path');
 		}
 		public function isFileExists($path){
 			if(file_exists($path)){
@@ -68,8 +69,8 @@
 			}
 		}
 		public function byte($param){
-			$filename = time() . "_" .uniqid() . "_" . $param['filename'];
-			if(imagejpeg(imagecreatefromstring($param['imageData']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
+			$filename = time() . "_" .uniqid() . "_" . $param['file']['filename'];
+			if(imagejpeg(imagecreatefromstring($param['file']['imageData']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
 				$this->print(array('byte'=>['status'=>true,'filename'=>$filename]));
 			}
 		}
