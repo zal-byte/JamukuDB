@@ -14,7 +14,7 @@
 	<title>View Of Jamuku</title>
 </head>
 <body>
-<form method="post" action="" enctype="multipart/form-data">
+<form method="post" action="index.php" enctype="multipart/form-data">
 	<p> ProdName </p>
 	<input type="text" name="ProdName"><br/>
 	<p> ProdDesc </p>
@@ -23,6 +23,7 @@
 	<input type="text" name="ProdWeight"><br/>
 	<p> ProdPrice </p>
 	<input type="text" name="ProdPrice"><br/>
+	<input type="text" name="PUsername" value="zalzal" hidden="true">
 	<p> ProdQuantity </p>
 	<input type="text" name="ProdQuantity"><br/>
 	<p> ProdPict </p>
@@ -45,6 +46,7 @@
 			$ProdPrice = $_POST['ProdPrice'];
 			$ProdQuantity = $_POST['ProdQuantity'];
 			$ProdPict = $_FILES['ProdPict'];
+			$PUsername = $_POST['PUsername'];
 
 			$handler = fopen($ProdPict['tmp_name'], 'rb');
 			$contents = stream_get_contents($handler);

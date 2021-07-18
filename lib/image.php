@@ -72,6 +72,8 @@
 			$filename = time() . "_" .uniqid() . "_" . $param['file']['filename'];
 			if(imagejpeg(imagecreatefromstring($param['file']['imageData']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
 				$this->print(array('byte'=>['status'=>true,'filename'=>$filename]));
+			}else{
+				$this->print(array('byte'=>['status'=>false,'msg'=>'Upload failed']));
 			}
 		}
 		public function jpg($param){

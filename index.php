@@ -13,7 +13,7 @@
     $crud_b = new CRUD_B($connection->connects());
     $crud_p = new CRUD_P($connection->connects());
     $crud_pf = new CRUD_PF($connection->connects());
-    $image = Image::getInstance();
+    $img = Image::getInstance();
     $sql_con = A::getInstance();
     $petugas = Petugas::getInstance($sql_con);
     // $sql_con->con(A::CONNECT_PREPARE ,"localhost","database","root","jamuku");
@@ -96,16 +96,30 @@
                 $data = array("ProdID"=>$_POST["ProdID"],"NewName"=>$_POST["NewName"]);
                 $petugas->changeProductName($data);
             }else if($request == "newProduct"){
-                $file = @file_get_contents($_FILES['ProdPict']['tmp_name']);
+
                 $filename = $_FILES["ProdPict"]['name'];
+                echo "<pre>";
+                print_r($_FILES);
+                echo "<hr>";
+                print_r($_POST);
+                echo "</pre>";
 
-                $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"], "imageData"=>base64_encode($file), "ProdPict"=>$filename);
-                if($petugas->AA($data)['status'] == true){
-                    // $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData']));
+                $file = fopen($_FILES['ProdPict']['tmp_name'],'rb');
+                $content = stream_get_contents($file);
+                fclose($file);
 
+                $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"],"ProdPict"=>$filename);
+                $value = array('imageData'=>$content, 'filename'=>$filename);
 
-                    $img->ImageQuality(['1'=>Image::JPG_MIDDLE,'filename'=>$_POST['ProdPict'],'imageData'=>base64_decode($_POST['imageData'])]);
+                if($img->ImageQuality(null, Image::JPG_MIDDLE, $value)){
+                    $response = $petugas->AA($data);
+                    if($response['newProduct']['status'] == true){
+                        
+                    }else{
+                     
+                    }
                 }
+
             }
 
             //Post

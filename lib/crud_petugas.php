@@ -84,9 +84,9 @@
 			$date = date("Y-m-d");
 			$result = $this->sql->query("insert into produk (`ProdName`,`ProdDesc`,`ProdWeight`,`ProdPrice`,`ProdQuantity`,`ProdDate`,`ProdLove`,`ProdComm`,`ProdPict`,`PUsername`) values ('".$data["ProdName"]."','".$data["ProdDesc"]."','".$data["ProdWeight"]."','".$data["ProdPrice"]."','".$data["ProdQuantity"]."','".$date."','0','0','".$data["ProdPict"]."','".$data["PUsername"]."')");
 			if($result){
-				$this->print(array('newProduct'=>array('status'=>true,'msg'=>'Produk berhasil ditambahkan.')));
+				return array('newProduct'=>array('status'=>true,'msg'=>'Produk berhasil ditambahkan.'));
 			}else{
-				$this->print(array("newProduct"=>array("status"=>false,"msg"=>"Tidak dapat menambahkan produk baru.")));
+				return array("newProduct"=>array("status"=>false,"msg"=>"Tidak dapat menambahkan produk baru."));
 			}
 		}
 		function BB($data){
