@@ -38,7 +38,7 @@
 			}
 
 			if($additional != null){
-				$this->byte(['1'=>$where, 'file'=>$additional]);
+				return $this->byte(['1'=>$where, 'file'=>$additional]);
 			}
 		}
 		public function dir($path = null){
@@ -71,9 +71,9 @@
 		public function byte($param){
 			$filename = time() . "_" .uniqid() . "_" . $param['file']['filename'];
 			if(imagejpeg(imagecreatefromstring($param['file']['imageData']), __DIR__ . "/" . $this->funcDir() . "/" . $filename, $param['1'])){
-				$this->print(array('byte'=>['status'=>true,'filename'=>$filename]));
+				return true;
 			}else{
-				$this->print(array('byte'=>['status'=>false,'msg'=>'Upload failed']));
+				return false;
 			}
 		}
 		public function jpg($param){

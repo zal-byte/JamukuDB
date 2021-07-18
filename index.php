@@ -96,28 +96,31 @@
                 $data = array("ProdID"=>$_POST["ProdID"],"NewName"=>$_POST["NewName"]);
                 $petugas->changeProductName($data);
             }else if($request == "newProduct"){
+                // $filename = $_FILES["ProdPict"]['name'];
+                // // echo "<pre>";
+                // // print_r($_FILES);
+                // // echo "<hr>";
+                // // print_r($_POST);
+                // // echo "</pre>";
 
-                $filename = $_FILES["ProdPict"]['name'];
-                echo "<pre>";
-                print_r($_FILES);
-                echo "<hr>";
-                print_r($_POST);
-                echo "</pre>";
+                // $file = fopen($_FILES['ProdPict']['tmp_name'],'rb');
+                // $content = stream_get_contents($file);
+                // fclose($file);
 
-                $file = fopen($_FILES['ProdPict']['tmp_name'],'rb');
-                $content = stream_get_contents($file);
-                fclose($file);
-
+                $content = $_POST['imageData'];
+                $filename = $_POST['ProdPict'];
                 $data = array("ProdName"=>$_POST["ProdName"],"ProdDesc"=>$_POST["ProdDesc"], "ProdQuantity"=>$_POST["ProdQuantity"],"ProdWeight"=>$_POST["ProdWeight"],"ProdPrice"=>$_POST["ProdPrice"], "PUsername"=>$_POST["PUsername"],"ProdPict"=>$filename);
-                $value = array('imageData'=>$content, 'filename'=>$filename);
-
-                if($img->ImageQuality(null, Image::JPG_MIDDLE, $value)){
+                $value = array('imageData'=>base64_decode($content), 'filename'=>$filename);
+                // print_r($img->ImageQuality(null, Image::JPG_MIDDLE, $value)['byte']['status']);
+                if($img->ImageQuality(null, Image::JPG_MIDDLE, $value) == true){
                     $response = $petugas->AA($data);
                     if($response['newProduct']['status'] == true){
-                        
+                        print_r(json_encode(array('newProduct'=>['status'=>true,'msg'=>"Produk berhasil ditambahkan."])));
                     }else{
-                     
+                        print_r(json_encode(array('newProduct'=>['status'=>false,'msg'=>"Produk gagal ditambahkan."])));
                     }
+                }else{
+                    print_r(json_encode(array('upload'=>['status'=>false,'msg'=>"Couldn't upload the image"])));
                 }
 
             }
